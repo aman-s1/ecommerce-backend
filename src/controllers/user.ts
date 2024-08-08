@@ -12,7 +12,7 @@ function isStringInvalid(str: string): boolean {
 
 // Sign up a new user
 const signup = async (req: Request, res: Response): Promise<Response> => {
-    const { name, email, password, isAdmin } = req.body;
+    const { name, email, password, referral } = req.body;
   
     if (isStringInvalid(name) || isStringInvalid(email) || isStringInvalid(password)) {
       return res.status(400).json({ err: 'Empty Fields' });
@@ -26,12 +26,16 @@ const signup = async (req: Request, res: Response): Promise<Response> => {
       }
   
       const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      const isAdminFlag = referral === '1234'; 
+
       await User.create({ 
         name, 
         email, 
         password: hashedPassword, 
-        isAdmin: isAdmin === '1234' ? true : false 
+        isAdmin: isAdminFlag
       });
+      
       return res.status(201).json({ message: 'Successfully Signed Up' });
     } catch (err) {
       console.error('Signup Error:', err);

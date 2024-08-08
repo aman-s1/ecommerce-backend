@@ -1,6 +1,5 @@
 import { Document, model, Schema } from 'mongoose';
 
-// Define an interface for the User document
 interface IUser extends Document {
   name: string;
   email: string;
@@ -8,7 +7,6 @@ interface IUser extends Document {
   isAdmin: boolean;
 }
 
-// Define the schema for the User model
 const UserSchema = new Schema<IUser>({
   name: {
     type: String,
