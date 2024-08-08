@@ -1,0 +1,11 @@
+# Node.js dependencies
+node_modules/
+
+# Compiled JavaScript files
+dist/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Environment variables
+.env
