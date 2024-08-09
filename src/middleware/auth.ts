@@ -24,6 +24,7 @@ const authenticate = async (req: Request, res: Response, next: NextFunction): Pr
                 return res.status(401).json({ success: false, message: 'User not found' });
             }
             req.user = foundUser;
+            console.log(req.user);
             next();
         } catch (err) {
             console.error(err);

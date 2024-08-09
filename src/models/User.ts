@@ -2,9 +2,7 @@ import { Document, model, Schema, Types } from 'mongoose';
 
 interface ICartItem {
   itemId: Types.ObjectId;
-  title: string;
   quantity: number;
-  price: number;
 }
 
 interface IUser extends Document {
@@ -21,18 +19,10 @@ const CartItemSchema = new Schema<ICartItem>({
     ref: 'Item',
     required: true,
   },
-  title: {
-    type: String,
-    required: true,
-  },
   quantity: {
     type: Number,
     required: true,
     min: 1,
-  },
-  price: {
-    type: Number,
-    required: true,
   },
 });
 

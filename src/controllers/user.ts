@@ -45,14 +45,14 @@ const signup = async (req: Request, res: Response): Promise<Response> => {
   
 
 // Generate a JWT token
-function generateAccessToken(id: string, name: string, isAdmin: boolean): string {
+function generateAccessToken(id: string, email: string, name: string, isAdmin: boolean): string {
   const secretKey = process.env.JWT_SECRET_KEY;
 
   if (!secretKey) {
     throw new Error('JWT_SECRET_KEY is not defined');
   }
 
-  return jwt.sign({ userId: id, name, isAdmin }, secretKey);
+  return jwt.sign({ userId: id, email, name, isAdmin }, secretKey);
 }
 
 // Login a user
@@ -76,7 +76,7 @@ const login = async (req: Request, res: Response): Promise<Response> => {
       return res.status(401).json({ err: 'Wrong Password' });
     }
 
-    const token = generateAccessToken(user.id, user.name, user.isAdmin);
+    const token = generateAccessToken(user.id, user.email, user.name, user.isAdmin);
     return res.status(200).json({ message: 'Login successful', token });
   } catch (err) {
     return res.status(500).json(err);

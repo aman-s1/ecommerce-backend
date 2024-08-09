@@ -5,4 +5,3 @@ export interface IUser {
     password: string;
     isAdmin: boolean;
 }
-  
