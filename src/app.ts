@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import userRoutes from './routes/user';
 import shopRoutes from './routes/shop';
+import cartRoutes from './routes/cart';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 
 app.use('/',userRoutes);
 app.use('/shop',shopRoutes);
+app.use('/cart', cartRoutes);
 
 mongoose
   .connect(
