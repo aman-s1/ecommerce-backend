@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import path from 'path';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
@@ -14,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://ecommapplication/frontend',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
