@@ -5,7 +5,7 @@ interface ICartItem {
   quantity: number;
 }
 
-interface IUser extends Document {
+export interface IUser extends Document {
   name: string;
   email: string;
   password: string;

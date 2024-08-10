@@ -1,15 +1,15 @@
 import express from 'express';
-import shopController from '../controllers/shop';
-import authenticate from '../middleware/auth';
+import shop from '../controllers/shop';
+import auth from '../middleware/auth';
 
 const router = express.Router();
 
-router.get('/', authenticate.authenticate, shopController.getUserInfo);
+router.get('/', auth.authenticate, shop.getUserInfo);
 
-router.post('/add-product', authenticate.authenticate, shopController.addProduct);
+router.post('/add-product', auth.authenticate, shop.addProduct);
 
-router.get('/products', authenticate.authenticate, shopController.getProducts);
+router.get('/products', auth.authenticate, shop.getProducts);
 
-router.delete('/products/:id', authenticate.authenticate, shopController.deleteProduct);
+router.delete('/products/:id', auth.authenticate, shop.deleteProduct);
 
 export default router;

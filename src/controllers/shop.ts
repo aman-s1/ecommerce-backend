@@ -3,7 +3,7 @@ import Item from '../models/Item';
 
 // TO get user information
 const getUserInfo = (req: Request, res: Response): Response => {
-  if (req.user) {
+  if (req.user && req.header('Authorization')?.replace('Bearer ', '')) {
     console.log(req.user);
     return res.status(200).json(req.user);
   } else {

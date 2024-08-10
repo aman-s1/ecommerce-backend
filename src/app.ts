@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import path from 'path';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
@@ -37,3 +38,5 @@ mongoose
   .catch(err => {
     console.error('Failed to connect to MongoDB:', err);
   });
+
+export default app;

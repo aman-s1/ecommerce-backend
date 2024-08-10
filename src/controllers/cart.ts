@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
-import User from '../models/User';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import User from '../models/User';
+import Order from '../models/Order';
 import Item from '../models/Item';
+
+const Sib: any = require('sib-api-v3-sdk');
+dotenv.config();
 
 const addItem = async (req: Request, res: Response) => {
     const userId = req.user?._id as string;
@@ -123,8 +128,105 @@ const getCartItems = async (req: Request, res: Response) => {
     }
 };
 
+const createOrder = async (req: Request, res: Response) => {
+    const userId = req.user?._id as string;
+    const { address, totalAmount, orderItems }: { address: string; totalAmount: number; orderItems: { itemId: string; quantity: number }[] } = req.body;
+
+    // Validate input
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
+    if (!address || totalAmount <= 0 || !Array.isArray(orderItems) || orderItems.length === 0) {
+        return res.status(400).json({ message: 'Invalid input data' });
+    }
+
+    try {
+        const order = new Order({
+            userId,
+            address,
+            totalAmount,
+            orderItems
+        });
+
+        await order.save();
+
+        const user = await User.findById(userId);
+        if (user) {
+            user.cartItems = [];
+            await user.save();
+        }
+
+        // Prepare order details for the email
+        const cartItemsDetails = orderItems.map(async ({ itemId, quantity }) => {
+            const item = await Item.findById(itemId).exec();
+            return {
+                title: item?.title || 'Unknown Item',
+                price: item?.price || 0,
+                quantity
+            };
+        });
+
+        const itemsDetails = await Promise.all(cartItemsDetails);
+        const itemsHtml = itemsDetails.map(item => 
+            `<li>${item.title}: ${item.quantity} x $${item.price.toFixed(2)}</li>`
+        ).join('');
+
+        // Set up Sendinblue client
+        const client = Sib.ApiClient.instance;
+        const apiKey = client.authentications['api-key'];
+        apiKey.apiKey = process.env.SB_API_KEY;
+
+        const tranEmailApi = new Sib.TransactionalEmailsApi();
+        const sender = {
+            email: process.env.EMAIL_USER,
+            name: `Shopper's Point`,
+        };
+
+        const receivers = [
+            {
+                email: req.user?.email,
+            },
+        ];
+
+        // Send the email
+        tranEmailApi
+            .sendTransacEmail({
+                sender,
+                to: receivers,
+                subject: 'Order Confirmation',
+                htmlContent: `
+                    <h3>Order Confirmation</h3>
+                    <p>Dear ${req.user?.name},</p>
+                    <p>Thank you for your purchase! Here are the details of your order:</p>
+                    <p><strong>Shipping Address:</strong> ${address}</p>
+                    <p><strong>Total Amount:</strong> $${totalAmount.toFixed(2)}</p>
+                    <ul>${itemsHtml}</ul>
+                    <p>We hope you enjoy your purchase!</p>
+                    <p>Best regards,</p>
+                    <p>Shopper's Point</p>
+                `,
+                params: {
+                    role: 'Customer',
+                },
+            })
+            .then(() => {
+                console.log('Order confirmation email sent successfully');
+                res.status(201).json({ message: 'Order created successfully', order });
+            })
+            .catch((error: any) => {
+                console.error('Failed to send order confirmation email:', error);
+                res.status(500).json({ message: 'Order created, but failed to send confirmation email', error });
+            });
+
+    } catch (error) {
+        console.error('Failed to create order:', error);
+        res.status(500).json({ message: 'Failed to create order', error: (error as Error).message });
+    }
+};
+
 export default {
     addItem,
     decreaseItem,
     getCartItems,
+    createOrder,
 };
