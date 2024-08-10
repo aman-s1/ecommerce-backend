@@ -9,4 +9,4 @@ dist/
 
 # Environment variables
 .env
-.enc.test
+.env.test
