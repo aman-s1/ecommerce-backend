@@ -10,6 +10,8 @@ router.post('/delete-item', auth.authenticate, cart.decreaseItem);
 
 router.get('/get-items', auth.authenticate, cart.getCartItems);
 
+router.post('/check-coupon', auth.authenticate, cart.checkCoupon);
+
 router.post('/checkout', auth.authenticate, cart.createOrder);
 
 export default router;

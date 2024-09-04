@@ -14,18 +14,18 @@ const PORT = process.env.PORT || 5000;
 
 // Ensure CORS middleware is applied before routes
 app.use(cors({
-    origin: 'https://ecomm-application-frontend.netlify.app',
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 }));
 
-app.options('*', cors({
-    origin: 'https://ecomm-application-frontend.netlify.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-}));
+// app.options('*', cors({
+//     origin: 'https://ecomm-application-frontend.netlify.app',
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//     credentials: true,
+// }));
 
 app.use(express.json());
 

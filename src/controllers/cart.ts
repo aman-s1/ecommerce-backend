@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import dotenv from 'dotenv';
 import User from '../models/User';
 import Order from '../models/Order';
@@ -128,9 +128,58 @@ const getCartItems = async (req: Request, res: Response) => {
     }
 };
 
+const checkCoupon = async (req: Request, res: Response) => {
+    const userId = req.user?._id as string;
+    try {
+        const { coupon } = req.body;
+
+        if (!coupon || typeof coupon !== 'string') {
+            return res.status(400).json({ message: 'Coupon code is required and must be a string' });
+        }
+
+        // Validate coupon
+        if (coupon.trim() == "DIWALIDHAMAKA" || coupon.trim() == "CHRISTMASCHARITY") {
+            const user = await User.findById(userId).populate('cartItems.itemId');
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            let totalAmount = 0;
+            for (const cartItem of user.cartItems) {
+                const item = cartItem.itemId as any;
+                if (item && item.price) {
+                    totalAmount += item.price * cartItem.quantity;
+                }
+            }
+            const discountPercentage = 20;
+            const discountAmount = (totalAmount * discountPercentage) / 100;
+            const newTotalAmount = totalAmount - discountAmount;
+
+            await User.findByIdAndUpdate(userId, {
+                $set: {
+                    "cartItems": user.cartItems,
+                }
+            });
+
+            return res.status(200).json({
+                message: 'Coupon applied successfully!',
+                isValid: true,
+                discountAmount: discountAmount,
+                newTotalAmount: newTotalAmount,
+            });
+        } else {
+            return res.status(400).json({ message: 'Invalid coupon code', isValid: false });
+        }
+    } catch (error) {
+        console.error('Error checking coupon:', error);
+        res.status(500).json({ message: 'An error occurred while checking the coupon', error });
+    }
+};
+
 const createOrder = async (req: Request, res: Response) => {
     const userId = req.user?._id as string;
-    const { address, totalAmount, orderItems }: { address: string; totalAmount: number; orderItems: { itemId: string; quantity: number }[] } = req.body;
+    const { address, totalAmount, orderItems }: { address: string; totalAmount: number; orderItems: { itemId: string; quantity: number }[] ;} = req.body;
 
     // Validate input
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -229,4 +278,5 @@ export default {
     decreaseItem,
     getCartItems,
     createOrder,
+    checkCoupon
 };
